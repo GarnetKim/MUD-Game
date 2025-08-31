@@ -1,5 +1,5 @@
 import streamlit as st
-from mudgame.skill import SKILLS   # ✅ 스킬 데이터 불러오기
+from mudgame.skill import SKILLS
 
 def codex_ui(player):
     st.title("📖 도감")
