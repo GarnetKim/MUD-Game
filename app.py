@@ -3,8 +3,8 @@ from mudgame.player import Player
 from mudgame.save_load import auto_load_latest
 from mudgame.battle import Monster, start_battle, battle_turn
 from mudgame.village import village_ui
-from mudgame.shop import shop_ui
-from mudgame.blacksmith import blacksmith_ui
+from mudgame.shop_ui import shop_ui
+from mudgame.blacksmith_ui import blacksmith_ui
 from mudgame.codex import codex_ui
 from mudgame.titles import titles_ui
 from mudgame.dungeon import explore_room
