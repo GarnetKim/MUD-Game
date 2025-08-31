@@ -1,7 +1,8 @@
 import streamlit as st
 from mudgame.player import Player
-from mudgame.battle import Monster
 from mudgame.save_load import auto_load_latest
+from mudgame.battle import Monster, start_battle, battle_turn
+from mudgame.shop import get_shop_items
 
 # ------------------------
 # 세션 초기화
