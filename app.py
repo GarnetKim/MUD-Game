@@ -142,13 +142,15 @@ else:
                 if item.type == "armor":
                     st.write(f"- 방어력: {item.defense}")
 
-                col1, col2 = st.columns(2)
+                col1, col2, col3 = st.columns(3)
+                # ✅ 장착하기 버튼
                 with col1:
                     if item.type in ["weapon", "armor"]:
                         if st.button(f"장착하기", key=f"equip_{idx}"):
                             p.equip(item)
                             log(f"⚔️ {item.display_name()} 장착!")
                             st.experimental_rerun()
+                # ✅ 해제하기 버튼
                 with col2:
                     if (p.weapon == item or p.armor == item):
                         if st.button(f"해제하기", key=f"unequip_{idx}"):
@@ -159,6 +161,13 @@ else:
                                 p.armor = None
                                 log("🛡️ 방어구를 해제했습니다.")
                             st.experimental_rerun()
+                # ✅ 소비 아이템 사용 버튼
+                with col3:
+                    if item.type == "consumable":
+                        if st.button(f"사용하기", key=f"use_{idx}"):
+                            if p.use_item(item.name, log=log):
+                                st.success(f"{item.name} 사용 완료!")
+                                st.experimental_rerun()
 
         if st.button("⬅️ 마을로 돌아가기"):
             st.session_state.inventory_open = False
