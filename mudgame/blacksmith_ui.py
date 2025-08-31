@@ -17,3 +17,4 @@ def blacksmith_ui(player, log):
 
     if st.button("⬅️ 마을로 돌아가기"):
         st.session_state.blacksmith_open = False
+        st.session_state.location = "village"

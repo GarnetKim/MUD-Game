@@ -1,5 +1,5 @@
 import streamlit as st
-from mudgame.shop import SHOP_STOCK, buy_item, sell_item
+from mudgame.shop import SHOP_STOCK, get_price, buy_item, sell_item
 
 def shop_ui(player, log):
     st.subheader("🏪 상점")
@@ -19,5 +19,8 @@ def shop_ui(player, log):
                     if msg: log(msg)
 
     st.write(f"보유 Gold: {player.gold}")
+
+    # ⬅️ 돌아가기 버튼
     if st.button("⬅️ 마을로 돌아가기"):
         st.session_state.shop_open = False
+        st.session_state.location = "village"

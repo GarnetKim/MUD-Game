@@ -56,6 +56,39 @@ class Player:
         elif item.type == "armor":
             self.armor = item
 
+    def use_item(self, item_name, count=1, log=None):
+        used = 0
+        for _ in range(count):
+            found = None
+            for i in self.inventory:
+                if i.name == item_name:
+                    found = i
+                    break
+            if not found:
+                if used == 0 and log:
+                    log(f"❌ {item_name} 없음")
+                break
+
+            # 소비 아이템 효과
+            if found.name == "체력 포션":
+                heal = min(50, self.max_hp - self.hp)
+                self.hp += heal
+                if log: log(f"💊 체력 포션 사용! HP +{heal} → {self.hp}/{self.max_hp}")
+            elif found.name == "마나 포션":
+                restore = min(20, self.max_mp - self.mp)
+                self.mp += restore
+                if log: log(f"🔮 마나 포션 사용! MP +{restore} → {self.mp}/{self.max_mp}")
+            elif found.name == "만능 포션":
+                self.hp = self.max_hp
+                self.mp = self.max_mp
+                if log: log(f"🌈 만능 포션 사용! HP/MP 전부 회복!")
+
+            # 사용 후 인벤토리에서 제거
+            self.inventory.remove(found)
+            used += 1
+
+        return used > 0
+
     def stats(self):
         atk = self.atk + (self.weapon.attack if self.weapon else 0)
         defense = self.defense + (self.armor.defense if self.armor else 0)

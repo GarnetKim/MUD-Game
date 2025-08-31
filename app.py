@@ -52,6 +52,21 @@ else:
     # 전투 UI
     # ------------------------
     if st.session_state.battle_state and st.session_state.battle_state["in_battle"]:
+        st.markdown("---")
+        st.subheader("🧪 아이템 사용")
+
+        consumables = [i for i in p.inventory if i.type == "consumable"]
+        if not consumables:
+            st.write("❌ 사용할 수 있는 아이템 없음")
+        else:
+            for item in consumables:
+                col1, col2 = st.columns([2, 1])
+                with col1:
+                    count = st.number_input(f"{item.name} 개수", min_value=1, max_value=p.inventory.count(item), value=1, key=f"use_{item.name}")
+                with col2:
+                    if st.button(f"{item.name} 사용", key=f"btn_{item.name}"):
+                        p.use_item(item.name, count=count, log=log)
+
         st.subheader(f"⚔️ {st.session_state.battle_state['monster'].name} 전투 중")
         col1, col2, col3 = st.columns(3)
         with col1:

@@ -44,3 +44,7 @@ def codex_ui(player):
                 st.markdown(f"✅ **{name}** - {info['desc']} (MP: {info['mp']}, 쿨타임: {info['cooldown']}턴)")
             else:
                 st.markdown(f"❌ **{name}** - ???")
+
+    if st.button("⬅️ 마을로 돌아가기"):
+        st.session_state.codex_open = False
+        st.session_state.location = "village"            
