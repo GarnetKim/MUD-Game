@@ -48,10 +48,16 @@ else:
     st.title("🎮 Garnet Story - Web Edition")
     p = st.session_state.player
 
+    # ✅ 상태 게이지 출력
+    st.subheader("📊 상태")
+    st.progress(p.hp / p.max_hp, text=f"❤️ HP {p.hp}/{p.max_hp}")
+    st.progress(p.mp / p.max_mp, text=f"🔮 MP {p.mp}/{p.max_mp}")
+
     # ------------------------
     # 전투 UI
     # ------------------------
     if st.session_state.battle_state and st.session_state.battle_state["in_battle"]:
+        # 🧪 아이템 사용
         st.markdown("---")
         st.subheader("🧪 아이템 사용")
 
@@ -62,10 +68,18 @@ else:
             for item in consumables:
                 col1, col2 = st.columns([2, 1])
                 with col1:
-                    count = st.number_input(f"{item.name} 개수", min_value=1, max_value=p.inventory.count(item), value=1, key=f"use_{item.name}")
+                    count = st.number_input(
+                        f"{item.name} 개수", 
+                        min_value=1, 
+                        max_value=p.inventory.count(item), 
+                        value=1, 
+                        key=f"use_{item.name}"
+                    )
                 with col2:
                     if st.button(f"{item.name} 사용", key=f"btn_{item.name}"):
-                        p.use_item(item.name, count=count, log=log)
+                        if p.use_item(item.name, count=count, log=log):
+                            st.success(f"{item.name} 사용 완료!")   # ✅ 사용 완료 메시지
+                            st.experimental_rerun()                # ✅ 바로 게이지 반영
 
         st.subheader(f"⚔️ {st.session_state.battle_state['monster'].name} 전투 중")
         col1, col2, col3 = st.columns(3)
@@ -78,6 +92,11 @@ else:
         with col3:
             if st.button("🏃 도망"):
                 st.session_state.battle_state = battle_turn(p, st.session_state.battle_state, "run", log)
+       
+        # ✅ 전투 중 상태 게이지
+        st.subheader("📊 상태")
+        st.progress(p.hp / p.max_hp, text=f"❤️ HP {p.hp}/{p.max_hp}")
+        st.progress(p.mp / p.max_mp, text=f"🔮 MP {p.mp}/{p.max_mp}")
 
     elif st.session_state.shop_open:
         shop_ui(p, log)
