@@ -55,7 +55,7 @@ if not st.session_state.initialized:
 # 메인 게임 루프 (게임 시작 후)
 # ------------------------
 else:
-    st.title("🎮 텍스트 MUD RPG - Web Edition")
+    st.title("🎮 Garnet story - Web Edition")
     cmd = st.text_input("명령어 입력:", "")
 
     if cmd:
