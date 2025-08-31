@@ -22,7 +22,7 @@ def log(msg: str):
 # 시작 메뉴 (게임 미시작 상태)
 # ------------------------
 if not st.session_state.initialized:
-    st.title("🎮 Garnet story - Web Edition")
+    st.title("🎮 Garnet Story - 시작 메뉴")
     st.subheader("모험을 시작하기 전에 선택하세요!")
 
     # 이름 입력
@@ -34,20 +34,21 @@ if not st.session_state.initialized:
     if st.button("게임 시작"):
         if option == "새 게임":
             st.session_state.player = Player(player_name if player_name else "용사")
-            log(f"✨ 새로운 모험이 시작됩니다! 환영합니다, {player_name}님!")
+            st.session_state.logs = [f"✨ 새로운 모험이 시작됩니다! 환영합니다, {player_name}님!"]
         else:
             player = auto_load_latest()
             if player:
                 st.session_state.player = player
-                log("📂 최근 세이브를 불러왔습니다!")
+                st.session_state.logs = ["📂 최근 세이브를 불러왔습니다!"]
             else:
                 st.session_state.player = Player(player_name if player_name else "용사")
-                log("⚠️ 세이브가 없어 새 게임으로 시작합니다.")
+                st.session_state.logs = ["⚠️ 세이브가 없어 새 게임으로 시작합니다."]
 
         # 상태 요약 자동 출력
         p = st.session_state.player
         log(f"👤 {p.name} | Lv.{p.level} | HP {p.hp}/{p.max_hp} | MP {p.mp}/{p.max_mp} | Gold {p.gold}")
 
+        # 초기화 완료 후 rerun
         st.session_state.initialized = True
         st.rerun()
 
@@ -55,7 +56,8 @@ if not st.session_state.initialized:
 # 메인 게임 루프 (게임 시작 후)
 # ------------------------
 else:
-    st.title("🎮 Garnet story - Web Edition")
+    st.title("🎮 Garnet Story - Web Edition")
+
     cmd = st.text_input("명령어 입력:", "")
 
     if cmd:
