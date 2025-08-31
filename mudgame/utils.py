@@ -1,4 +1,4 @@
-from item import Item
+from mudgame.item import Item
 
 # -------------------------
 # 게이지 표시

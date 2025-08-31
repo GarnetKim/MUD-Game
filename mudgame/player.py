@@ -1,5 +1,5 @@
-from item import Item
-from item import format_item
+from mudgame.item import Item
+from mudgame.item import format_item
 
 class Player:
     def __init__(self, name: str):

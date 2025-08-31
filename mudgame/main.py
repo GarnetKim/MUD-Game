@@ -1,13 +1,13 @@
-from player import Player, show_player_summary
-from utils import show_inventory_table, sort_inventory, filter_inventory
-from save_load import auto_load_latest, save_game, choose_save_slot
-from battle import battle, Monster
-from dungeon import Dungeon, explore_dungeon
-from shop import shop_menu
-from skill import unlock_skill, show_skill_codex, use_skill, tick_cooldowns
-from titles import unlock_title, activate_title, deactivate_title, show_titles, apply_title_effects
-from sets import apply_set_bonus, show_set_codex, check_codex_completion
-from log_system import search_logs, export_logs_to_csv, paginate_logs, monitor_logs
+from mudgame.player import Player, show_player_summary
+from mudgame.utils import show_inventory_table, sort_inventory, filter_inventory
+from mudgame.save_load import auto_load_latest, save_game, choose_save_slot
+from mudgame.battle import battle, Monster
+from mudgame.dungeon import Dungeon, explore_dungeon
+from mudgame.shop import shop_menu
+from mudgame.skill import unlock_skill, show_skill_codex, use_skill, tick_cooldowns
+from mudgame.titles import unlock_title, activate_title, deactivate_title, show_titles, apply_title_effects
+from mudgame.sets import apply_set_bonus, show_set_codex, check_codex_completion
+from mudgame.log_system import search_logs, export_logs_to_csv, paginate_logs, monitor_logs
 
 # ------------------------
 # 게임 시작

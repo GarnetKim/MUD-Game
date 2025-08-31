@@ -4,8 +4,8 @@ import os
 import json
 import datetime
 from typing import Dict, Any, Optional
-from player import Player
-from item import Item
+from mudgame.player import Player
+from mudgame.item import Item
 
 SAVE_PATTERN = "save_*.json"
 MAX_KEEP = 5

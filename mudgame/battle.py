@@ -1,8 +1,8 @@
 import random
 import datetime
-from log_system import log_event
-from utils import hp_gauge, mp_gauge
-from save_load import save_game
+from mudgame.log_system import log_event
+from mudgame.utils import hp_gauge, mp_gauge
+from mudgame.save_load import save_game
 
 # ------------------------
 # 몬스터 클래스

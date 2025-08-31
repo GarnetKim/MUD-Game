@@ -1,8 +1,8 @@
 import random
-from battle import Monster, battle
-from shop import shop_menu
-from item import Item
-from utils import show_inventory_table
+from mudgame.battle import Monster, battle
+from mudgame.shop import shop_menu
+from mudgame.item import Item
+from mudgame.utils import show_inventory_table
 
 # ------------------------
 # 방(Room) 클래스

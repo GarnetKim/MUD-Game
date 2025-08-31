@@ -1,4 +1,4 @@
-from log_system import log_event
+from mudgame.log_system import log_event
 
 # ------------------------
 # 칭호 정의

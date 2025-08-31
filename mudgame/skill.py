@@ -1,5 +1,5 @@
 import random
-from log_system import log_event
+from mudgame.log_system import log_event
 
 # ------------------------
 # 스킬 정의

@@ -1,4 +1,4 @@
-from item import Item
+from mudgame.item import Item
 
 # ------------------------
 # 상점 기본 재고
