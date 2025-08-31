@@ -1,4 +1,3 @@
-# dungeon.py
 import random
 from battle import Monster, battle
 from shop import shop_menu
