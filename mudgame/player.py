@@ -1,5 +1,5 @@
 from item import Item
-from utils import format_item
+from item import format_item
 
 class Player:
     def __init__(self, name: str):
