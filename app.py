@@ -1,5 +1,5 @@
 import streamlit as st
-from mudgame.player import Player, SKILL_INFO
+from mudgame.player import Player
 from mudgame.save_load import auto_load_latest
 from mudgame.battle import Monster, start_battle, battle_turn
 from mudgame.village import village_ui
@@ -8,6 +8,7 @@ from mudgame.blacksmith_ui import blacksmith_ui
 from mudgame.codex import codex_ui
 from mudgame.titles import titles_ui
 from mudgame.dungeon import explore_room
+from mudgame.skill import SKILLS, unlock_skill
 
 # 세션 초기화
 for k, v in {
@@ -92,18 +93,17 @@ else:
     # ------------------------
     if st.session_state.skill_choice_open:
         st.subheader("✨ 새로운 스킬을 선택하세요!")
-        choices = [s for s in p.available_skills if s not in p.skills]
+        choices = [s for s in SKILLS.keys() if s not in p.skills]  # 아직 배우지 않은 스킬
         if not choices:
             st.write("모든 스킬을 이미 배웠습니다!")
             st.session_state.skill_choice_open = False
         else:
             for idx, skill in enumerate(choices, 1):
-                info = SKILL_INFO.get(skill, {"desc": "알 수 없는 스킬", "mp": 0})
+                info = SKILLS[skill]
                 st.markdown(f"**{idx}. {skill}**  \n💡 {info['desc']}  \n🔹 MP 소모: {info['mp']}")
                 if st.button(f"{skill} 배우기"):
-                    p.skills[skill] = {"level": 1, "cooldown": 3, "mp": info["mp"]}
+                    unlock_skill(p, skill, log=log)  # ✅ skill.py의 unlock_skill 사용
                     st.session_state.skill_choice_open = False
-                    log(f"🆕 스킬 해금: {skill} (MP {info['mp']})")
 
     # ------------------------
     # 로그 출력
@@ -116,7 +116,6 @@ else:
         horizontal=True
     )
 
-    # 최근 50개만
     recent_logs = logs[-50:]
 
     if filter_option == "전투":

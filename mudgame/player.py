@@ -1,23 +1,5 @@
 from mudgame.item import Item
 
-# ------------------------
-# 스킬 정보 테이블
-# ------------------------
-SKILL_INFO = {
-    "Heal": {
-        "desc": "자신의 HP를 회복한다.",
-        "mp": 5
-    },
-    "Fireball": {
-        "desc": "불덩이를 던져 적에게 큰 피해를 준다.",
-        "mp": 8
-    },
-    "Shield Bash": {
-        "desc": "방패로 공격하여 적을 기절시킬 확률이 있다.",
-        "mp": 6
-    }
-}
-
 class Player:
     def __init__(self, name="용사"):
         self.name = name
@@ -78,3 +60,4 @@ class Player:
         atk = self.atk + (self.weapon.attack if self.weapon else 0)
         defense = self.defense + (self.armor.defense if self.armor else 0)
         return atk, defense
+ 
