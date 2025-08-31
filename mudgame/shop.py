@@ -1,13 +1,22 @@
-# mudgame/shop.py
-from mudgame.item import Item
+import streamlit as st
+from mudgame.shop import SHOP_STOCK, get_price, buy_item, sell_item
 
-# 샘플 아이템 (실제 프로젝트에서는 아이템 풀과 드랍 테이블을 연결)
-SHOP_ITEMS = [
-    Item("체력 포션", "consumable", rarity="common", heal=20, price=10),
-    Item("마나 포션", "consumable", rarity="common", mp_restore=15, price=12),
-    Item("철검", "weapon", atk=5, rarity="rare", price=50),
-    Item("가죽 갑옷", "armor", defense=3, rarity="rare", price=45),
-]
-
-def get_shop_items():
-    return SHOP_ITEMS
+def shop_ui(player, log):
+    st.subheader("🏪 상점")
+    for idx, (name, data) in enumerate(SHOP_STOCK.items(), 1):
+        col1, col2, col3 = st.columns([3,1,1])
+        with col1:
+            st.write(f"{idx}. {name} - {data['price']} Gold [재고:{data['stock']}]")
+        with col2:
+            if st.button(f"구매 {idx}"):
+                msg = buy_item(player, name)
+                log(msg)
+        with col3:
+            if any(it.name == name for it in player.inventory):
+                if st.button(f"판매 {idx}"):
+                    item = next(it for it in player.inventory if it.name == name)
+                    msg = sell_item(player, item)
+                    log(msg)
+    st.write(f"보유 Gold: {player.gold}")
+    if st.button("⬅️ 상점 나가기"):
+        st.session_state.shop_open = False
