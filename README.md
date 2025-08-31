@@ -1,3 +1,4 @@
+```
 mudgame/
 ├── main.py           # 게임 실행 진입점
 ├── player.py         # Player 클래스, 상태 요약
@@ -11,3 +12,4 @@ mudgame/
 ├── titles.py         # 칭호 시스템, 효과 선택
 ├── sets.py           # 세트 효과, 도감
 └── utils.py          # 게이지(UI), ASCII 아트, 공용 유틸
+```
