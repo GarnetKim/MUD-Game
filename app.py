@@ -1,6 +1,6 @@
 import streamlit as st
 from mudgame.player import Player
-from mudgame.battle import Monster, battle
+from mudgame.battle import Monster
 from mudgame.save_load import auto_load_latest
 
 # ------------------------
