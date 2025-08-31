@@ -1,66 +1,78 @@
 import streamlit as st
 from mudgame.player import Player
-from mudgame.battle import Monster, battle
-from mudgame.shop import shop_menu
-from mudgame.dungeon import Dungeon, explore_dungeon
-from mudgame.utils import show_inventory_table
-from mudgame.save_load import save_game, auto_load_latest
+from mudgame.save_load import auto_load_latest
 
 # ------------------------
 # 세션 초기화
 # ------------------------
 if "player" not in st.session_state:
-    st.session_state.player = Player("용사")
-if "dungeon" not in st.session_state:
-    st.session_state.dungeon = None
+    st.session_state.player = None
 if "logs" not in st.session_state:
     st.session_state.logs = []
+if "initialized" not in st.session_state:
+    st.session_state.initialized = False
 
-player = st.session_state.player
-dungeon = st.session_state.dungeon
 logs = st.session_state.logs
 
-# ------------------------
-# 출력 함수 (print 대신 logs에 기록)
-# ------------------------
-def log(msg):
-    st.session_state.logs.append(msg)
+def log(msg: str):
+    """Streamlit 로그 기록"""
+    logs.append(msg)
 
 # ------------------------
-# UI 레이아웃
+# 시작 메뉴 (게임 미시작 상태)
 # ------------------------
-st.title("🎮 텍스트 MUD RPG - Web Edition")
-st.write("명령어 기반 RPG를 Streamlit에서 즐겨보세요!")
+if not st.session_state.initialized:
+    st.title("🎮 텍스트 MUD RPG - Web Edition")
+    st.subheader("모험을 시작하기 전에 선택하세요!")
 
-cmd = st.text_input("명령어 입력:", "")
+    # 이름 입력
+    player_name = st.text_input("플레이어 이름을 입력하세요:", "용사")
 
-if cmd:
-    if cmd == "status":
-        log(f"👤 {player.name} | Lv.{player.level} | HP {player.hp}/{player.max_hp} | MP {player.mp}/{player.max_mp} | Gold {player.gold}")
-    elif cmd == "inv":
-        inv_text = "\n".join([f"- {i.name} ({i.rarity})" for i in player.inventory]) or "비어있음"
-        log("🎒 인벤토리:\n" + inv_text)
-    elif cmd == "battle":
-        m = Monster("고블린", 30, 8, 2, {"poison": 30})
-        battle(player, m)  # battle() 안에 print 있으니 → 나중에 Streamlit용 wrapper 필요
-        log("⚔️ 전투 시작!")
-    elif cmd == "shop":
-        log("🏪 상점 시스템은 웹 버전에서 UI 구현 필요")
-    elif cmd == "dungeon":
-        if not dungeon:
-            st.session_state.dungeon = Dungeon(width=4, height=4, floor=1, max_floor=2)
-        st.session_state.dungeon = explore_dungeon(player, st.session_state.dungeon)
-        log("🏰 던전 탐험 진행 중...")
-    elif cmd == "save":
-        save_game(player)
-        log("💾 게임 저장 완료")
-    elif cmd == "quit":
-        log("👋 게임 종료 (웹 세션은 계속 유지됨)")
-    else:
-        log(f"❌ 알 수 없는 명령어: {cmd}")
+    # 새 게임 / 이어하기 옵션
+    option = st.radio("게임 시작 옵션", ["새 게임", "이어하기"], index=0)
+
+    if st.button("게임 시작"):
+        if option == "새 게임":
+            st.session_state.player = Player(player_name if player_name else "용사")
+            log(f"✨ 새로운 모험이 시작됩니다! 환영합니다, {player_name}님!")
+        else:
+            player = auto_load_latest()
+            if player:
+                st.session_state.player = player
+                log("📂 최근 세이브를 불러왔습니다!")
+            else:
+                st.session_state.player = Player(player_name if player_name else "용사")
+                log("⚠️ 세이브가 없어 새 게임으로 시작합니다.")
+
+        # 상태 요약 자동 출력
+        p = st.session_state.player
+        log(f"👤 {p.name} | Lv.{p.level} | HP {p.hp}/{p.max_hp} | MP {p.mp}/{p.max_mp} | Gold {p.gold}")
+
+        st.session_state.initialized = True
+        st.rerun()
 
 # ------------------------
-# 출력 로그 표시
+# 메인 게임 루프 (게임 시작 후)
 # ------------------------
-st.subheader("📜 게임 로그")
-st.text_area("Logs", value="\n".join(logs), height=400)
+else:
+    st.title("🎮 텍스트 MUD RPG - Web Edition")
+    cmd = st.text_input("명령어 입력:", "")
+
+    if cmd:
+        p = st.session_state.player
+        if cmd == "status":
+            log(f"👤 {p.name} | Lv.{p.level} | HP {p.hp}/{p.max_hp} | MP {p.mp}/{p.max_mp} | Gold {p.gold}")
+        elif cmd == "inv":
+            inv_text = "\n".join([f"- {i.name} ({i.rarity})" for i in p.inventory]) or "비어있음"
+            log("🎒 인벤토리:\n" + inv_text)
+        elif cmd == "battle":
+            log("⚔️ 전투 시스템은 웹 로그 전용으로 리팩터링 필요")
+        elif cmd == "shop":
+            log("🏪 상점 시스템은 웹 UI 구현 필요")
+        elif cmd == "dungeon":
+            log("🏰 던전 시스템은 웹 UI 구현 필요")
+        else:
+            log(f"❌ 알 수 없는 명령어: {cmd}")
+
+    st.subheader("📜 게임 로그")
+    st.text_area("Logs", value="\n".join(logs), height=400)
