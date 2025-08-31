@@ -12,23 +12,31 @@ SHOP_STOCK = {
 def get_price(item_name):
     return SHOP_STOCK[item_name]["price"]
 
-def buy_item(player, item_name):
-    if item_name not in SHOP_STOCK: return "❌ 없는 아이템"
+def buy_item(player, item_name, log=None):
+    if item_name not in SHOP_STOCK: 
+        return "❌ 없는 아이템"
     stock = SHOP_STOCK[item_name]
-    if stock["stock"] <= 0: return "❌ 재고 없음"
-    if player.gold < stock["price"]: return "❌ Gold 부족"
+    if stock["stock"] <= 0: 
+        return "❌ 재고 없음"
+    if player.gold < stock["price"]: 
+        return "❌ Gold 부족"
+
     player.gold -= stock["price"]
     stock["stock"] -= 1
     bought = stock["item"]
     player.add_item(bought, log)
+
     if log:
         log(f"🛒 {bought.display_name()} 구매 완료! (-{stock['price']} Gold)")
+
     return None
 
 def sell_item(player, item, log=None):
     price = int(item.price * 0.5) if item.price else 5
     player.gold += price
     player.inventory.remove(item)
+
     if log:
         log(f"💰 {item.display_name()} 판매 완료! (+{price} Gold)")
+
     return None
