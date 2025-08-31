@@ -1,5 +1,5 @@
 import streamlit as st
-from mudgame.player import Player
+from mudgame.player import Player, SKILL_INFO
 from mudgame.save_load import auto_load_latest
 from mudgame.battle import Monster, start_battle, battle_turn
 from mudgame.village import village_ui
@@ -14,7 +14,7 @@ for k, v in {
     "player": None, "logs": [], "initialized": False,
     "battle_state": None, "shop_open": False,
     "blacksmith_open": False, "codex_open": False, "titles_open": False,
-    "location": "village"
+    "location": "village", "skill_choice_open": False
 }.items():
     if k not in st.session_state: st.session_state[k] = v
 
@@ -47,6 +47,9 @@ else:
     st.title("🎮 Garnet Story - Web Edition")
     p = st.session_state.player
 
+    # ------------------------
+    # 전투 UI
+    # ------------------------
     if st.session_state.battle_state and st.session_state.battle_state["in_battle"]:
         st.subheader(f"⚔️ {st.session_state.battle_state['monster'].name} 전투 중")
         col1, col2, col3 = st.columns(3)
@@ -84,21 +87,38 @@ else:
     elif st.session_state.location == "village":
         village_ui(p, log)
 
-    st.subheader("📜 게임 로그")
+    # ------------------------
+    # 스킬 선택 UI (레벨업 시)
+    # ------------------------
+    if st.session_state.skill_choice_open:
+        st.subheader("✨ 새로운 스킬을 선택하세요!")
+        choices = [s for s in p.available_skills if s not in p.skills]
+        if not choices:
+            st.write("모든 스킬을 이미 배웠습니다!")
+            st.session_state.skill_choice_open = False
+        else:
+            for idx, skill in enumerate(choices, 1):
+                info = SKILL_INFO.get(skill, {"desc": "알 수 없는 스킬", "mp": 0})
+                st.markdown(f"**{idx}. {skill}**  \n💡 {info['desc']}  \n🔹 MP 소모: {info['mp']}")
+                if st.button(f"{skill} 배우기"):
+                    p.skills[skill] = {"level": 1, "cooldown": 3, "mp": info["mp"]}
+                    st.session_state.skill_choice_open = False
+                    log(f"🆕 스킬 해금: {skill} (MP {info['mp']})")
 
     # ------------------------
-    # 로그 필터 UI
+    # 로그 출력
     # ------------------------
+    st.subheader("📜 게임 로그")
+
     filter_option = st.radio(
         "로그 필터",
         ["전체", "전투", "아이템", "골드"],
         horizontal=True
     )
 
-    # 최근 50개만 가져오기
+    # 최근 50개만
     recent_logs = logs[-50:]
 
-    # 필터 적용
     if filter_option == "전투":
         filtered_logs = [l for l in recent_logs if "⚔️" in l or "🗡️" in l or "🔥" in l or "💥" in l or "🎉" in l]
     elif filter_option == "아이템":
@@ -108,5 +128,4 @@ else:
     else:
         filtered_logs = recent_logs
 
-    # 최신순 출력
     st.text_area("Logs", value="\n".join(reversed(filtered_logs)), height=400)

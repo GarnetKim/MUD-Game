@@ -1,4 +1,5 @@
 import random
+from mudgame.item import Item
 
 class Monster:
     def __init__(self, name, hp, atk, defense, is_boss=False):
@@ -50,14 +51,25 @@ def battle_turn(player, state, action, log):
             reward_gold = 200
             player.add_gold(reward_gold, log)
 
-            # 전설 아이템 보상
             legendary = Item("보스의 전설 검", "weapon", "전설", attack=15, durability=200, price=500)
             player.add_item(legendary, log)
 
+            # EXP & 레벨업 연계
+            player.add_exp(150, log)
+
+            firework = """
+            🎆✨✨✨🎆
+          ✨   💥   ✨
+        🎇   LEVEL UP!   🎇
+          ✨   💥   ✨
+            🎆✨✨✨🎆
+            """
             log("🏆 보스를 쓰러뜨려 전설 보상을 획득했습니다!")
+            log(firework)
         else:
             reward_gold = 30
             player.add_gold(reward_gold, log)
+            player.add_exp(50, log)
 
         return state
 
