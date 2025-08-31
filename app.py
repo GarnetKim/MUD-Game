@@ -24,7 +24,7 @@ def log(msg): logs.append(msg)
 
 # 시작 메뉴
 if not st.session_state.initialized:
-    st.title("🎮 Garnet Story - 시작 메뉴")
+    st.title(f"🎮 Garnet Story - RPG")
     player_name = st.text_input("플레이어 이름:", "용사")
     option = st.radio("게임 시작 옵션", ["새 게임", "이어하기"], index=0)
     if st.button("게임 시작"):
