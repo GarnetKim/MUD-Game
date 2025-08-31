@@ -85,6 +85,28 @@ else:
         village_ui(p, log)
 
     st.subheader("📜 게임 로그")
-    # 최근 50개만 (최신순으로 위에서부터 보여주기)
-    recent_logs = list(reversed(logs[-50:]))
-    st.text_area("Logs", value="\n".join(recent_logs), height=400)
+
+    # ------------------------
+    # 로그 필터 UI
+    # ------------------------
+    filter_option = st.radio(
+        "로그 필터",
+        ["전체", "전투", "아이템", "골드"],
+        horizontal=True
+    )
+
+    # 최근 50개만 가져오기
+    recent_logs = logs[-50:]
+
+    # 필터 적용
+    if filter_option == "전투":
+        filtered_logs = [l for l in recent_logs if "⚔️" in l or "🗡️" in l or "🔥" in l or "💥" in l or "🎉" in l]
+    elif filter_option == "아이템":
+        filtered_logs = [l for l in recent_logs if "🎁" in l or "🛒" in l]
+    elif filter_option == "골드":
+        filtered_logs = [l for l in recent_logs if "💰" in l]
+    else:
+        filtered_logs = recent_logs
+
+    # 최신순 출력
+    st.text_area("Logs", value="\n".join(reversed(filtered_logs)), height=400)
