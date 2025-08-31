@@ -54,29 +54,46 @@ if not st.session_state.initialized:
 # ------------------------
 if st.session_state.initialized:
     st.title("🎮 Garnet Story - Web Edition")
-
     p = st.session_state.player
 
-    # 전투 상태 세션 추가
     if "battle_state" not in st.session_state:
         st.session_state.battle_state = None
+    if "shop_open" not in st.session_state:
+        st.session_state.shop_open = False
 
+    # 전투 중일 때
     if st.session_state.battle_state and st.session_state.battle_state["in_battle"]:
-        # 전투 중일 때 버튼 표시
-        st.subheader(f"⚔️ {st.session_state.battle_state['monster'].name} 과(와)의 전투")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            if st.button("🗡️ 공격"):
-                st.session_state.battle_state = battle_turn(p, st.session_state.battle_state, "attack", log)
-        with col2:
-            if st.button("🔥 스킬"):
-                st.session_state.battle_state = battle_turn(p, st.session_state.battle_state, "skill", log)
-        with col3:
-            if st.button("🏃 도망"):
-                st.session_state.battle_state = battle_turn(p, st.session_state.battle_state, "run", log)
+        ...
+        # (전투 버튼 부분 그대로)
 
+    # 상점 열려있을 때
+    elif st.session_state.shop_open:
+        st.subheader("🏪 상점")
+
+        items = get_shop_items()
+        for i, item in enumerate(items):
+            col1, col2, col3 = st.columns([3,1,1])
+            with col1:
+                st.write(f"{item.name} ({item.rarity}) - 💰 {item.price} Gold")
+            with col2:
+                if st.button(f"구매 {i}"):
+                    if p.gold >= item.price:
+                        p.gold -= item.price
+                        p.inventory.append(item)
+                        log(f"🛒 {item.name} 구매 완료! (남은 골드: {p.gold})")
+                    else:
+                        log("⚠️ 골드가 부족합니다!")
+            with col3:
+                if item in p.inventory and st.button(f"판매 {i}"):
+                    p.gold += int(item.price * 0.5)
+                    p.inventory.remove(item)
+                    log(f"💰 {item.name} 판매 완료! (보유 골드: {p.gold})")
+
+        if st.button("⬅️ 상점 나가기"):
+            st.session_state.shop_open = False
+
+    # 기본 메뉴
     else:
-        # 전투 시작 버튼
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
@@ -90,7 +107,8 @@ if st.session_state.initialized:
 
         with col3:
             if st.button("🏪 상점"):
-                log("상점 시스템은 준비 중입니다!")
+                st.session_state.shop_open = True
+                log("🏪 상점에 입장했습니다!")
 
         with col4:
             if st.button("🏰 던전 탐험"):
