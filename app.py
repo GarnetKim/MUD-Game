@@ -1,10 +1,10 @@
 import streamlit as st
-from player import Player
-from battle import Monster, battle
-from shop import shop_menu
-from dungeon import Dungeon, explore_dungeon
-from utils import show_inventory_table
-from save_load import save_game, auto_load_latest
+from mudgame.player import Player
+from mudgame.battle import Monster, battle
+from mudgame.shop import shop_menu
+from mudgame.dungeon import Dungeon, explore_dungeon
+from mudgame.utils import show_inventory_table
+from mudgame.save_load import save_game, auto_load_latest
 
 # ------------------------
 # 세션 초기화
