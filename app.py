@@ -22,7 +22,7 @@ def log(msg: str):
 # 시작 메뉴 (게임 미시작 상태)
 # ------------------------
 if not st.session_state.initialized:
-    st.title("🎮 텍스트 MUD RPG - Web Edition")
+    st.title("🎮 Garnet story - Web Edition")
     st.subheader("모험을 시작하기 전에 선택하세요!")
 
     # 이름 입력
