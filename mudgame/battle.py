@@ -44,8 +44,21 @@ def battle_turn(player, state, action, log):
     if monster.hp <= 0:
         log(f"🎉 {monster.name} 처치 성공!")
         state["in_battle"] = False
-        player.gold += 50 if monster.is_boss else 10
-        player.exp += 30 if monster.is_boss else 10
+
+        # 보상 처리
+        if monster.is_boss:
+            reward_gold = 200
+            player.add_gold(reward_gold, log)
+
+            # 전설 아이템 보상
+            legendary = Item("보스의 전설 검", "weapon", "전설", attack=15, durability=200, price=500)
+            player.add_item(legendary, log)
+
+            log("🏆 보스를 쓰러뜨려 전설 보상을 획득했습니다!")
+        else:
+            reward_gold = 30
+            player.add_gold(reward_gold, log)
+
         return state
 
     # 몬스터 반격
