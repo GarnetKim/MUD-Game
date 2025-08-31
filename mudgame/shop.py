@@ -1,4 +1,3 @@
-from app import log
 from mudgame.item import Item
 
 SHOP_STOCK = {
@@ -24,9 +23,12 @@ def buy_item(player, item_name):
     player.add_item(bought, log)
     if log:
         log(f"🛒 {bought.display_name()} 구매 완료! (-{stock['price']} Gold)")
+    return None
 
-def sell_item(player, item):
+def sell_item(player, item, log=None):
     price = int(item.price * 0.5) if item.price else 5
     player.gold += price
     player.inventory.remove(item)
-    return f"💰 {item.display_name()} 판매 완료! (+{price} Gold)"
+    if log:
+        log(f"💰 {item.display_name()} 판매 완료! (+{price} Gold)")
+    return None

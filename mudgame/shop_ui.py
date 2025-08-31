@@ -9,14 +9,14 @@ def shop_ui(player, log):
             st.write(f"{idx}. {name} - {data['price']} Gold [재고:{data['stock']}]")
         with col2:
             if st.button(f"구매 {idx}"):
-                msg = buy_item(player, name)
-                log(msg)
+                msg = buy_item(player, name, log=log)  # ✅ log 인자로 전달
+                if msg: log(msg)
         with col3:
             if any(it.name == name for it in player.inventory):
                 if st.button(f"판매 {idx}"):
                     item = next(it for it in player.inventory if it.name == name)
-                    msg = sell_item(player, item)
-                    log(msg)
+                    msg = sell_item(player, item, log=log)  # ✅ log 인자로 전달
+                    if msg: log(msg)
 
     st.write(f"보유 Gold: {player.gold}")
     if st.button("⬅️ 마을로 돌아가기"):
