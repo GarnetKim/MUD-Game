@@ -1,9 +1,7 @@
-# item.py
-
 class Item:
     def __init__(self, name, type_, rarity, attack=0, defense=0, resistances=None):
         self.name = name              # 이름
-        self.type = type_             # weapon / armor / consumable ...
+        self.type = type_             # weapon / armor / consumable / etc
         self.rarity = rarity          # 일반 / 레어 / 전설
         self.attack = attack
         self.defense = defense
@@ -30,7 +28,7 @@ class Item:
 
 
 # ---------------------------------------
-# 아이템 문자열 포매터 (UI 표시용)
+# 희귀도 아이콘
 # ---------------------------------------
 RARITY_ICON = {
     "일반": "⚪",
@@ -38,6 +36,9 @@ RARITY_ICON = {
     "전설": "🟡"
 }
 
+# ---------------------------------------
+# 아이템 문자열 포매터 (UI 표시용)
+# ---------------------------------------
 def format_item(item: Item) -> str:
     if not item:
         return "없음"
@@ -47,7 +48,7 @@ def format_item(item: Item) -> str:
     enh = f" +{item.enhance_level}" if item.enhance_level > 0 else ""
 
     # 내구도 게이지 (🟩🟨🟥)
-    dur_ratio = item.durability / item.max_durability if item.max_durability > 0 else 0
+    dur_ratio = item.durability / item.max_durability if item.max_durability else 0
     if dur_ratio > 0.6:
         dur_icon = "🟩"
     elif dur_ratio > 0.3:

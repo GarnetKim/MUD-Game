@@ -24,7 +24,7 @@ class Player:
         # ---------------------
         self.weapon: Item = None
         self.armor: Item = None
-        self.inventory = []  # type: list[Item]
+        self.inventory: list[Item] = []
 
         # ---------------------
         # 상태 / 전투 로그
@@ -70,7 +70,7 @@ class Player:
             self.armor = item
 
     # -------------------------
-    # 상태 요약
+    # 상태 요약 (dict)
     # -------------------------
     def summary(self):
         return {
