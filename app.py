@@ -85,5 +85,6 @@ else:
         village_ui(p, log)
 
     st.subheader("📜 게임 로그")
-    # 최신 로그가 위로 오도록 reversed 사용
-    st.text_area("Logs", value="\n".join(reversed(logs)), height=400)
+    # 최근 50개만 (최신순으로 위에서부터 보여주기)
+    recent_logs = list(reversed(logs[-50:]))
+    st.text_area("Logs", value="\n".join(recent_logs), height=400)
