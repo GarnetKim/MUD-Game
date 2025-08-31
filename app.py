@@ -1,7 +1,7 @@
 import streamlit as st
 from mudgame.player import Player
 from mudgame.save_load import auto_load_latest
-from mudgame.battle import Monster, start_battle, battle_turn
+from mudgame.battle import start_battle, battle_turn
 from mudgame.village import village_ui
 from mudgame.shop_ui import shop_ui
 from mudgame.blacksmith_ui import blacksmith_ui
@@ -17,9 +17,11 @@ for k, v in {
     "player": None, "logs": [], "initialized": False,
     "battle_state": None, "shop_open": False,
     "blacksmith_open": False, "codex_open": False, "titles_open": False,
-    "location": "village", "skill_choice_open": False
+    "location": "village", "skill_choice_open": False,
+    "inventory_open": False,
 }.items():
-    if k not in st.session_state: st.session_state[k] = v
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 logs = st.session_state.logs
 def log(msg): logs.append(msg)
@@ -28,7 +30,7 @@ def log(msg): logs.append(msg)
 # 시작 메뉴
 # ------------------------
 if not st.session_state.initialized:
-    st.title("🎮 Garnet Story - 시작 메뉴")
+    st.title("🎮 Garnet Story - Web Edition")
     player_name = st.text_input("플레이어 이름:", "용사")
     option = st.radio("게임 시작 옵션", ["새 게임", "이어하기"], index=0)
     if st.button("게임 시작"):
@@ -67,6 +69,7 @@ else:
     # ------------------------
     if st.session_state.battle_state and st.session_state.battle_state["in_battle"]:
         st.subheader(f"⚔️ {st.session_state.battle_state['monster'].name} 전투 중")
+
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("🗡️ 공격"):
@@ -89,10 +92,10 @@ else:
                 col1, col2 = st.columns([2, 1])
                 with col1:
                     count = st.number_input(
-                        f"{item.name} 개수", 
-                        min_value=1, 
-                        max_value=p.inventory.count(item), 
-                        value=1, 
+                        f"{item.name} 개수",
+                        min_value=1,
+                        max_value=p.inventory.count(item),
+                        value=1,
                         key=f"use_{item.name}"
                     )
                 with col2:
@@ -102,16 +105,20 @@ else:
                             st.experimental_rerun()
 
     # ------------------------
-    # 서브 화면 (상점/대장장이/도감/칭호/던전/마을)
+    # 서브 화면 (상점/대장장이/도감/칭호/던전/마을/인벤토리)
     # ------------------------
     elif st.session_state.shop_open:
         shop_ui(p, log)
+
     elif st.session_state.blacksmith_open:
         blacksmith_ui(p, log)
+
     elif st.session_state.codex_open:
         codex_ui(p)
+
     elif st.session_state.titles_open:
         titles_ui(p, log)
+
     elif st.session_state.location == "dungeon":
         result, obj = explore_room(p, log)
         if result == "battle":
@@ -120,8 +127,44 @@ else:
             st.session_state.shop_open = True
         if st.button("⬅️ 마을로 돌아가기"):
             st.session_state.location = "village"
+
+    elif st.session_state.inventory_open:
+        st.subheader("🎒 인벤토리")
+        if not p.inventory:
+            st.write("❌ 인벤토리가 비어있습니다.")
+        else:
+            for idx, item in enumerate(p.inventory, 1):
+                st.markdown(f"**{idx}. {item.display_name()}**")
+                st.write(f"- 희귀도: {item.rarity}")
+                st.write(f"- 타입: {item.type}")
+                if item.type == "weapon":
+                    st.write(f"- 공격력: {item.attack}")
+                if item.type == "armor":
+                    st.write(f"- 방어력: {item.defense}")
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    if item.type in ["weapon", "armor"]:
+                        if st.button(f"장착하기", key=f"equip_{idx}"):
+                            p.equip(item)
+                            log(f"⚔️ {item.display_name()} 장착!")
+                            st.experimental_rerun()
+                with col2:
+                    if (p.weapon == item or p.armor == item):
+                        if st.button(f"해제하기", key=f"unequip_{idx}"):
+                            if p.weapon == item:
+                                p.weapon = None
+                                log("⚔️ 무기를 해제했습니다.")
+                            elif p.armor == item:
+                                p.armor = None
+                                log("🛡️ 방어구를 해제했습니다.")
+                            st.experimental_rerun()
+
+        if st.button("⬅️ 마을로 돌아가기"):
+            st.session_state.inventory_open = False
+            st.session_state.location = "village"
+
     elif st.session_state.location == "village":
-        from mudgame.village import village_ui
         village_ui(p, log)
 
     # ------------------------

@@ -32,3 +32,7 @@ def village_ui(player, log):
             player.hp = player.max_hp
             player.mp = player.max_mp
             log("🛏️ 여관에서 휴식! HP/MP가 모두 회복되었습니다.")
+
+    # ✅ 인벤토리 버튼
+    if st.button("🎒 인벤토리 보기"):
+        st.session_state.inventory_open = True

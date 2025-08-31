@@ -50,7 +50,7 @@ class Player:
         if log:
             log(f"💰 Gold +{amount} (현재 {self.gold})")
 
-    def equip(self, item: Item):
+    def equip(self, item):
         if item.type == "weapon":
             self.weapon = item
         elif item.type == "armor":
