@@ -1,4 +1,4 @@
-from item import Item
+from mudgame.item import Item
 
 class Player:
     def __init__(self, name="용사"):
