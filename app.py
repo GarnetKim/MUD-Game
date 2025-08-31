@@ -85,4 +85,5 @@ else:
         village_ui(p, log)
 
     st.subheader("📜 게임 로그")
-    st.text_area("Logs", value="\n".join(logs), height=400)
+    # 최신 로그가 위로 오도록 reversed 사용
+    st.text_area("Logs", value="\n".join(reversed(logs)), height=400)

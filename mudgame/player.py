@@ -19,9 +19,16 @@ class Player:
         self.active_title = None
         self.codex = {"items": set(), "sets": set(), "skills": set()}  # 도감
 
-    def add_item(self, item: Item):
+    def add_item(self, item, log=None):
         self.inventory.append(item)
         self.codex["items"].add(item.name)
+        if log:
+            log(f"🎁 아이템 획득: {item.display_name()}")
+
+    def add_gold(self, amount, log=None):
+        self.gold += amount
+        if log:
+            log(f"💰 Gold +{amount} (현재 {self.gold})")
 
     def equip(self, item: Item):
         if item.type == "weapon":

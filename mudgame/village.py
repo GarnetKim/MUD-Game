@@ -1,4 +1,5 @@
 import streamlit as st
+from mudgame.battle import Monster, start_battle
 
 def village_ui(player, log):
     st.subheader("🏘️ 마을")
@@ -7,7 +8,8 @@ def village_ui(player, log):
 
     with col1:
         if st.button("⚔️ 전투 훈련"):
-            st.session_state.location = "battle"
+            monster = Monster("훈련용 허수아비", 30, 5, 2)
+            st.session_state.battle_state = start_battle(player, monster, log)
 
     with col2:
         if st.button("🏪 상점"):
