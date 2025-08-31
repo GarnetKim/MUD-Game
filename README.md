@@ -165,6 +165,3 @@ quit                # 게임 종료
 - 온라인 멀티플레이 지원  
 - GUI/웹 버전  
 
----
-
-Made with ❤️ in Python
