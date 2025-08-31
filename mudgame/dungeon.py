@@ -32,12 +32,4 @@ def explore_room(player, log):
         log("👹 보스룸에 들어섰다!")
         return ("battle", m)
 
-    elif event == "chest":
-        gold = random.randint(10, 50)
-        player.add_gold(gold, log)
-        # 아이템 드랍
-        if random.random() < 0.5:
-            item = Item("회복 포션", "consumable", "일반", heal=15, price=5)
-            player.add_item(item, log)
-
     return (None, None)
