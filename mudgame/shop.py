@@ -1,22 +1,30 @@
-import streamlit as st
-from mudgame.shop import SHOP_STOCK, get_price, buy_item, sell_item
+from mudgame.item import Item
 
-def shop_ui(player, log):
-    st.subheader("🏪 상점")
-    for idx, (name, data) in enumerate(SHOP_STOCK.items(), 1):
-        col1, col2, col3 = st.columns([3,1,1])
-        with col1:
-            st.write(f"{idx}. {name} - {data['price']} Gold [재고:{data['stock']}]")
-        with col2:
-            if st.button(f"구매 {idx}"):
-                msg = buy_item(player, name)
-                log(msg)
-        with col3:
-            if any(it.name == name for it in player.inventory):
-                if st.button(f"판매 {idx}"):
-                    item = next(it for it in player.inventory if it.name == name)
-                    msg = sell_item(player, item)
-                    log(msg)
-    st.write(f"보유 Gold: {player.gold}")
-    if st.button("⬅️ 상점 나가기"):
-        st.session_state.shop_open = False
+SHOP_STOCK = {
+    "체력 포션": {"price": 10, "stock": 5, "item": Item("체력 포션", "consumable", "일반", heal=20)},
+    "마나 포션": {"price": 12, "stock": 5, "item": Item("마나 포션", "consumable", "일반", mp_restore=15)},
+    "하이 포션": {"price": 50, "stock": 2, "item": Item("하이 포션", "consumable", "레어", heal=50, mp_restore=20)},
+    "철검": {"price": 100, "stock": 2, "item": Item("철검", "weapon", "레어", attack=10, durability=120)},
+    "가죽 갑옷": {"price": 90, "stock": 2, "item": Item("가죽 갑옷", "armor", "레어", defense=8, durability=120)},
+    "강화석": {"price": 150, "stock": 3, "item": Item("강화석", "material", "레어")},
+}
+
+def get_price(item_name):
+    return SHOP_STOCK[item_name]["price"]
+
+def buy_item(player, item_name):
+    if item_name not in SHOP_STOCK: return "❌ 없는 아이템"
+    stock = SHOP_STOCK[item_name]
+    if stock["stock"] <= 0: return "❌ 재고 없음"
+    if player.gold < stock["price"]: return "❌ Gold 부족"
+    player.gold -= stock["price"]
+    stock["stock"] -= 1
+    bought = stock["item"]
+    player.add_item(bought)
+    return f"🛒 {bought.display_name()} 구매 완료! (-{stock['price']} Gold)"
+
+def sell_item(player, item):
+    price = int(item.price * 0.5) if item.price else 5
+    player.gold += price
+    player.inventory.remove(item)
+    return f"💰 {item.display_name()} 판매 완료! (+{price} Gold)"

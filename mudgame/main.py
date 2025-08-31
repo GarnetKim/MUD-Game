@@ -1,141 +1,88 @@
-from mudgame.player import Player, show_player_summary
-from mudgame.utils import show_inventory_table, sort_inventory, filter_inventory
-from mudgame.save_load import auto_load_latest, save_game, choose_save_slot
-from mudgame.battle import battle, Monster
-from mudgame.dungeon import Dungeon, explore_dungeon
-from mudgame.shop import shop_menu
-from mudgame.skill import unlock_skill, show_skill_codex, use_skill, tick_cooldowns
-from mudgame.titles import unlock_title, activate_title, deactivate_title, show_titles, apply_title_effects
-from mudgame.sets import apply_set_bonus, show_set_codex, check_codex_completion
-from mudgame.log_system import search_logs, export_logs_to_csv, paginate_logs, monitor_logs
+import streamlit as st
+from mudgame.player import Player
+from mudgame.save_load import auto_load_latest
+from mudgame.battle import Monster, start_battle, battle_turn
+from mudgame.village import village_ui
+from mudgame.shop_ui import shop_ui
+from mudgame.blacksmith_ui import blacksmith_ui
+from mudgame.codex import codex_ui
+from mudgame.titles import titles_ui
+from mudgame.dungeon import explore_room
 
-# ------------------------
-# 게임 시작
-# ------------------------
-def start_game():
-    print("🎮 텍스트 MUD RPG 에 오신 걸 환영합니다!")
-    choice = input("👉 자동 로드 하시겠습니까? (Y/n): ").strip().lower()
-    if choice == "n":
-        player = choose_save_slot()
-        if not player:
-            name = input("플레이어 이름을 입력하세요: ")
-            player = Player(name)
-            print(f"✨ 새로운 모험이 시작됩니다! 환영합니다, {player.name}님!")
-    else:
-        player = auto_load_latest()
-        if not player:
-            name = input("플레이어 이름을 입력하세요: ")
-            player = Player(name)
-            print(f"✨ 새로운 모험이 시작됩니다! 환영합니다, {player.name}님!")
-    return player
+# 세션 초기화
+for k, v in {
+    "player": None, "logs": [], "initialized": False,
+    "battle_state": None, "shop_open": False,
+    "blacksmith_open": False, "codex_open": False, "titles_open": False,
+    "location": "village"
+}.items():
+    if k not in st.session_state: st.session_state[k] = v
 
-# ------------------------
-# 명령어 처리
-# ------------------------
-def handle_command(player, cmd: str, dungeon: Dungeon):
-    if cmd == "status":
-        show_player_summary(player)
+logs = st.session_state.logs
+def log(msg): logs.append(msg)
 
-    elif cmd == "inv":
-        show_inventory_table(player, "all")
-    elif cmd.startswith("inv "):
-        parts = cmd.split()
-        if parts[1] in ["무기","weapon"]:
-            show_inventory_table(player, "weapon")
-        elif parts[1] in ["방어구","armor"]:
-            show_inventory_table(player, "armor")
-        elif parts[1] in ["소비","consumable"]:
-            show_inventory_table(player, "consumable")
-        elif parts[1] == "검색" and len(parts) >= 3:
-            keyword = parts[2]
-            filter_inventory(player, keyword)
-        elif parts[1] == "정렬" and len(parts) >= 3:
-            sort_inventory(player, parts[2])
+# 시작 메뉴
+if not st.session_state.initialized:
+    st.title("🎮 Garnet Story - 시작 메뉴")
+    player_name = st.text_input("플레이어 이름:", "용사")
+    option = st.radio("게임 시작 옵션", ["새 게임", "이어하기"], index=0)
+    if st.button("게임 시작"):
+        if option == "새 게임":
+            st.session_state.player = Player(player_name)
+            logs[:] = [f"✨ 새로운 모험이 시작됩니다! {player_name}님!"]
         else:
-            print("❌ 잘못된 inv 옵션")
+            player = auto_load_latest()
+            if player:
+                st.session_state.player = player
+                logs[:] = ["📂 세이브 불러오기 성공!"]
+            else:
+                st.session_state.player = Player(player_name)
+                logs[:] = ["⚠️ 세이브 없음, 새 게임 시작!"]
 
-    elif cmd == "battle":
-        m = Monster("고블린", 30, 8, 2, {"poison": 30})
-        battle(player, m)
+        st.session_state.initialized = True
+        st.session_state.location = "village"
 
-    elif cmd == "dungeon":
-        if not dungeon:
-            dungeon = Dungeon(width=4, height=4, floor=1, max_floor=3)
-        dungeon = explore_dungeon(player, dungeon)
+# 게임 루프
+else:
+    st.title("🎮 Garnet Story - Web Edition")
+    p = st.session_state.player
 
-    elif cmd == "shop":
-        shop_menu(player)
+    if st.session_state.battle_state and st.session_state.battle_state["in_battle"]:
+        st.subheader(f"⚔️ {st.session_state.battle_state['monster'].name} 전투 중")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button("🗡️ 공격"):
+                st.session_state.battle_state = battle_turn(p, st.session_state.battle_state, "attack", log)
+        with col2:
+            if st.button("🔥 스킬"):
+                st.session_state.battle_state = battle_turn(p, st.session_state.battle_state, "skill", log)
+        with col3:
+            if st.button("🏃 도망"):
+                st.session_state.battle_state = battle_turn(p, st.session_state.battle_state, "run", log)
 
-    elif cmd.startswith("skill"):
-        parts = cmd.split()
-        if len(parts) == 2 and parts[1] == "codex":
-            show_skill_codex(player)
-        elif len(parts) >= 2:
-            skill_name = parts[1]
-            use_skill(player, skill_name, None)
-        else:
-            print("❌ 사용법: skill <이름> / skill codex")
+    elif st.session_state.shop_open:
+        shop_ui(p, log)
 
-    elif cmd.startswith("title"):
-        parts = cmd.split()
-        if len(parts) == 2 and parts[1] == "list":
-            show_titles(player)
-        elif len(parts) == 3 and parts[1] == "unlock":
-            unlock_title(player, parts[2])
-        elif len(parts) == 3 and parts[1] == "activate":
-            activate_title(player, parts[2])
-        elif len(parts) == 2 and parts[1] == "deactivate":
-            deactivate_title(player)
-        else:
-            print("❌ 사용법: title list/unlock/activate/deactivate")
+    elif st.session_state.blacksmith_open:
+        blacksmith_ui(p, log)
 
-    elif cmd == "setcodex":
-        show_set_codex(player)
+    elif st.session_state.codex_open:
+        codex_ui(p)
 
-    elif cmd.startswith("log "):
-        parts = cmd.split()
-        if parts[1] == "search":
-            keywords = parts[2:]
-            search_logs(keywords)
-        elif parts[1] == "csv":
-            export_logs_to_csv()
-        elif parts[1] == "page":
-            paginate_logs()
-        elif parts[1] == "monitor":
-            monitor_logs()
-        else:
-            print("❌ 사용법: log search/csv/page/monitor")
+    elif st.session_state.titles_open:
+        titles_ui(p, log)
 
-    elif cmd == "save":
-        save_game(player)
+    elif st.session_state.location == "dungeon":
+        result, obj = explore_room(p, log)
+        if result == "battle":
+            st.session_state.battle_state = start_battle(p, obj, log)
+        elif result == "merchant":
+            st.session_state.shop_open = True
+        if st.button("⬅️ 마을로 돌아가기"):
+            st.session_state.location = "village"
 
-    elif cmd == "quit":
-        print("👋 게임을 종료합니다.")
-        return False, dungeon
+    elif st.session_state.location == "village":
+        village_ui(p, log)
 
-    else:
-        print("❌ 알 수 없는 명령어")
-
-    return True, dungeon
-
-# ------------------------
-# 메인 루프
-# ------------------------
-def main_loop(player):
-    dungeon = None
-    while True:
-        cmd = input("> ").strip()
-        tick_cooldowns(player)  # 턴마다 스킬 쿨타임 감소
-        apply_title_effects(player)  # 칭호 효과 적용
-        apply_set_bonus(player)      # 세트 효과 적용
-        check_codex_completion(player) # 세트 도감 완성 보상
-        cont, dungeon = handle_command(player, cmd, dungeon)
-        if not cont:
-            break
-
-# ------------------------
-# 실행
-# ------------------------
-if __name__ == "__main__":
-    p = start_game()
-    main_loop(p)
+    st.subheader("📜 게임 로그")
+    st.text_area("Logs", value="\n".join(logs), height=400)

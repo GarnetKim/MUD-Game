@@ -1,19 +1,30 @@
-import streamlit as st
-from mudgame.blacksmith import repair_item, upgrade_item
+import random
 
-def blacksmith_ui(player, log):
-    st.subheader("🛠️ 대장장이")
+def repair_item(item, player, log):
+    cost = int(item.max_durability * 0.2)
+    if player.gold < cost:
+        return "❌ Gold 부족"
+    player.gold -= cost
+    item.durability = item.max_durability
+    log(f"🛠️ {item.display_name()} 내구도 완전 회복! (-{cost} Gold)")
+    return None
 
-    st.write("수리 가능한 장비:")
-    for i, item in enumerate([it for it in player.inventory if it.type in ["weapon", "armor"]], 1):
-        st.write(f"{i}. {item.display_name()} - 내구도 {item.durability}/{item.max_durability}")
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button(f"수리 {i}"):
-                repair_item(item, player, log)
-        with c2:
-            if st.button(f"강화 {i}"):
-                upgrade_item(item, player, log)
+def upgrade_item(item, player, log):
+    if not any(i.name == "강화석" for i in player.inventory):
+        return "❌ 강화석이 없습니다."
+    stone = next(i for i in player.inventory if i.name == "강화석")
+    player.inventory.remove(stone)
 
-    if st.button("⬅️ 마을로 돌아가기"):
-        st.session_state.blacksmith_open = False
+    success_rate = 0.7 if item.rarity == "레어" else 0.5 if item.rarity == "전설" else 0.9
+    if random.random() < success_rate:
+        item.upgrade_level += 1
+        item.attack += 1 if item.type == "weapon" else 0
+        item.defense += 1 if item.type == "armor" else 0
+        log(f"✨ 강화 성공! {item.display_name()} → +{item.upgrade_level}")
+    else:
+        if random.random() < 0.3:  # 파괴 확률
+            log(f"💥 강화 실패! {item.display_name()} 파괴됨!")
+            player.inventory.remove(item)
+        else:
+            log(f"⚠️ 강화 실패! {item.display_name()} 변화 없음.")
+    return None
